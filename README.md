@@ -7,7 +7,7 @@ This is a closely integrated Prova Rule Language (https://github.com/prova/prova
 
 - New operator for StreamBase called Prova; 
 - The operator accepts rule base files written in Prova as source for StreamBase operators;
-- The files can declaratively specify the input and putput ports;
+- The files can declaratively specify the input and output ports;
 - All types are interactively type-checked on StreamBase Studio canvas for inbound and outbound flows;
 - Sophisticated reactive event-processing constructs can be used in StreamBase (given the suitable Prova encoding, this includes formalisms like pi-calculus and Petri nets).
 
