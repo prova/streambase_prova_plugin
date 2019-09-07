@@ -1,0 +1,4 @@
+Prova Rule Language plugin for TIBCO StreamBase
+Copyright 2019 Alex Kozlenkov
+
+This product includes software developed by Alex Kozlenkov.
