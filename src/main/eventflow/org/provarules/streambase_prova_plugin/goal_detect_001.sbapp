@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<modify version="10.4.4_1fdffe2e2394aff79d1eba1a3b2e83bfcee239ac">
+    <add>
+        <annotations>
+            <annotation name="hygienic"/>
+        </annotations>
+        <type-metadata>
+            <param name="type" value="module"/>
+            <param name="fully-qualified-name" value="org.provarules.streambase_prova_plugin.goal_detect_001"/>
+        </type-metadata>
+        <memory-model-settings/>
+        <dynamic-variables/>
+        <box name="CSVFileReader" type="inputadapter">
+            <output port="1" stream="out:CSVFileReader_1"/>
+            <param name="start:state" value="true"/>
+            <param name="javaclass" value="com.streambase.sb.adapter.csvreader.CSVReader"/>
+            <param name="CaptureStrategy" value="FLATTEN"/>
+            <param name="Charset" value=""/>
+            <param name="Delimiter" value=","/>
+            <param name="DiscardEmptyRecords" value="true"/>
+            <param name="EmitTiming" value="Field based"/>
+            <param name="FileName" value="resources/goal_detect_001.csv"/>
+            <param name="HeaderTypeOption" value="No header"/>
+            <param name="MapControlPort" value="false"/>
+            <param name="NullString" value="null"/>
+            <param name="Period" value="0"/>
+            <param name="PreserveWhitespace" value="false"/>
+            <param name="QuoteChar" value="&quot;"/>
+            <param name="Repeat" value="1"/>
+            <param name="Schema" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;schema&gt;&#13;&#10;    &lt;field name=&quot;mid&quot; type=&quot;int&quot;/&gt;&#13;&#10;    &lt;field name=&quot;ts&quot; type=&quot;timestamp&quot;/&gt;&#13;&#10;    &lt;field name=&quot;score_home&quot; type=&quot;int&quot;/&gt;&#13;&#10;    &lt;field name=&quot;score_away&quot; type=&quot;int&quot;/&gt;&#13;&#10;&lt;/schema&gt;&#13;&#10;"/>
+            <param name="StartControlPort" value="false"/>
+            <param name="StartEventPort" value="false"/>
+            <param name="TimeBasedEmitField" value="ts"/>
+            <param name="TimeBasedEmitMode" value="Emission times relative to the first record"/>
+            <param name="TimestampFormat" value="yyyy-MM-dd hh:mm:ss"/>
+            <param name="UseDefaultCharset" value="true"/>
+            <param name="ignoreExistingRecords" value="true"/>
+            <param name="incompleteRecordsMode" value="Populate with nulls"/>
+            <param name="lenientTimestampParsing" value="true"/>
+            <param name="logLevel" value="INFO"/>
+            <param name="logWarningForIncomplete" value="false"/>
+            <param name="readAsResource" value="true"/>
+            <param name="tailMode" value="false"/>
+            <param name="tailUpdateInterval" value="1000"/>
+        </box>
+        <box name="Sequence" type="seqnum">
+            <input port="1" stream="out:CSVFileReader_1"/>
+            <output port="1" stream="out:Sequence_1"/>
+            <param name="output-field" value="seq"/>
+            <param name="sequence-id" value="sequenceid"/>
+            <param name="update-expression" value="sequenceid + 1"/>
+        </box>
+        <box name="Echo" type="java">
+            <input port="1" stream="out:Sequence_1"/>
+            <output port="1" stream="OutputStream1"/>
+            <param name="start:state" value="true"/>
+            <param name="javaclass" value="org.provarules.streambase.operator.Prova"/>
+            <param name="properties" value=""/>
+            <param name="rulebase" value="resources/echo.prova"/>
+        </box>
+        <box name="GoalDetect" type="java">
+            <input port="1" stream="out:Sequence_1"/>
+            <output port="1" stream="OutputStream2"/>
+            <param name="start:state" value="true"/>
+            <param name="javaclass" value="org.provarules.streambase.operator.Prova"/>
+            <param name="properties" value="GoalDetect"/>
+            <param name="rulebase" value="resources/goal_detect_001.prova"/>
+        </box>
+        <box name="GoalDetect2" type="java">
+            <input port="1" stream="out:Sequence_1"/>
+            <output port="1" stream="OutputStream3"/>
+            <param name="start:state" value="true"/>
+            <param name="javaclass" value="org.provarules.streambase.operator.Prova"/>
+            <param name="properties" value=""/>
+            <param name="rulebase" value="resources/goal_detect_002.prova"/>
+        </box>
+        <output-stream name="OutputStream1"/>
+        <output-stream name="OutputStream2"/>
+        <output-stream name="OutputStream3"/>
+    </add>
+</modify>

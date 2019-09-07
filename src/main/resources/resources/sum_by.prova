@@ -1,0 +1,14 @@
+% This operator emits an event with a sum of fields 'bf' while 'status' does not change.
+
+input("basic",{bf:int,status:int}).
+%input("basic",{bf:int,status:int}).
+
+output("enrich",{sum_bf:int}).
+
+start(Op,Properties) :-
+	Processor = org.provarules.streambase.processors.AggregationProcessor(status,bf,sum_bf),
+	pattern(Processor).
+
+pattern(Processor) :-
+	rcvMult(_,_,_,event,{result:Operator,event:In}),
+	Result = Processor.intsum(In,Operator).

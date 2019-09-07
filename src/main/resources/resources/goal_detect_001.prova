@@ -1,0 +1,28 @@
+% Detect goals with no timeout allowed
+
+input("basic",{score_home:int,score_away:int,mid:int}).
+
+output("enrich",{goal:int}).
+
+start(Op,Properties) :-
+	$Operator = Properties.get("result"),
+	pattern().
+
+pattern() :-
+	rcvMult(QID,_,_,event,{port:Port,result:Operator,event:In1}),
+	MID=In1.get("mid"),
+	% Only wait for the next message for the same mid for the specified amount of time
+	@timeout('10 sec')
+	rcvMsg(QID,_,_,event,{port:Port,result:Operator,event:In2}) [MID=In2.get("mid")],
+	println(["GoalDetect1: ",In1,In2]),
+	next_state(QID,In1,In2).
+
+next_state(QID,{ts:T1,score_home:H1,score_away:A1},{seq:Seq,mid:MID,ts:T2,score_home:H2,score_away:A1}) :-
+	H2=H1+1,
+	!,
+	println(["GoalDetect1: Home goal"]),
+	$Operator.callback(0,{seq:Seq,mid:MID,ts:T2,score_home:H2,score_away:A1,goal:1}).
+next_state(QID,{score_home:H1,score_away:A1},{seq:Seq,mid:MID,ts:T2,score_home:H1,score_away:A2}) :-
+	A2=A1+1,
+	println(["GoalDetect1: Away goal"]),
+	$Operator.callback(0,{seq:Seq,mid:MID,ts:T2,score_home:H1,score_away:A2,goal:2}).

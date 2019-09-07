@@ -1,0 +1,22 @@
+% This operator multiplies a given field by 2 by calling an external transformer.
+
+input("basic",{}).
+
+output("enrich",{}).
+
+start(Op,Properties) :-
+	field(Properties,Field),
+	pattern(Field).
+
+field(Properties,Field) :-
+	Boolean.TRUE=Properties.containsKey('field'),
+	!,
+	Field=Properties.get('field').
+field(Properties,'status').
+
+pattern(Field) :-
+	rcvMult(QID,_,_,event,{port:Port,result:Operator,event:In}),
+	println([In]),
+	Out = org.provarules.streambase.transforms.TransformFunctions.multiplyFieldByTwo(Field,In),
+% Out = In,
+	Operator.callback(0,Out).

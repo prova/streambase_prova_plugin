@@ -1,0 +1,47 @@
+% This operator detects when the red alarm status has an unbroken run for 5 seconds. 
+% Testing it on the file test_status_stream.csv using test_status_stream results in three emitted alarms.
+% This operator emits two alarms for the test file test_status_stream.csv. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Required inputs for each port %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+input("basic",{status:int,bf:int,ctg:int}).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+% Outputs for each port %
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
+output("enrich",{}).
+
+%%%%%%%%%%%%%%%%%%%%%%
+% Pattern start/stop %
+%%%%%%%%%%%%%%%%%%%%%%
+
+start(Op,Properties) :-
+	QID = Properties.get("queryId"),
+	timeout(Properties, Timeout),
+	pattern(QID,Timeout).
+
+timeout(Properties,Timeout) :-
+	Boolean.TRUE=Properties.containsKey('timeout'),
+	!,
+	Timeout=Properties.get('timeout').
+timeout(Properties,5000).
+
+pattern(QID,Timeout) :-
+	rcvMsg(QID,_,_,event,{result:Callback,event:Red}) [3=Red.get("status")],
+	pattern2(QID,Timeout,{result:Callback,event:Red}).
+
+pattern2(QID,Timeout,_) :-
+	@group(g1) @stop
+	rcvMsg(QID,_,_,event,{event:NotRed}) [3>NotRed.get("status")],
+	pattern(QID,Timeout).
+pattern2(QID,Timeout,_) :-
+	@and(g1) @timeout(Timeout)
+	rcvMsg(QID,_,_,and,_).
+pattern2(QID,Timeout,{result:Callback,event:Red}) :-
+	@and(g1)
+	rcvMsg(QID,_,_,timeout,_),
+	Callback.callback(0,Red),
+	pattern(QID,Timeout).
